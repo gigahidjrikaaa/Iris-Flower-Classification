@@ -58,33 +58,47 @@ st.write(iris_df.describe())
 
 # Data Visualization    
 st.subheader("Data Visualization")
-col1, col2, col3 = st.columns(3)
+st.write("To visualize the data, we will use scatter plots to show the relationship between the features.")
+st.write("The scatter plots show the relationship between the following features:")
+st.write("- Sepal Length vs Sepal Width")
+st.write("- Sepal Length vs Petal Length")
+st.write("- Petal Length vs Petal Width")
+st.write("- Sepal Width vs Petal Width")
+st.write("The points are colored based on the species of the Iris flower.")
 
-# Scatter Plot for Sepal Length vs Sepal Width
+col1, col2 = st.columns(2)
+
 with col1:
+    # Scatter Plot for Sepal Length vs Sepal Width
     fig, ax = plt.subplots()
     sns.scatterplot(x='sepal length (cm)', y='sepal width (cm)', hue='species', data=iris_df, ax=ax)
     ax.set_title("Sepal Length vs Sepal Width")
     st.pyplot(fig)
 
-# Scatter Plot for Petal Length vs Petal Width
-with col2:
-    fig, ax = plt.subplots()
-    sns.scatterplot(x='petal length (cm)', y='petal width (cm)', hue='species', data=iris_df, ax=ax)
-    ax.set_title("Petal Length vs Petal Width")
-    st.pyplot(fig)
-
-# Scatter Plot for Sepal Length vs Petal Length
-with col3:
+    # Scatter Plot for Sepal Length vs Petal Length
     fig, ax = plt.subplots()
     sns.scatterplot(x='sepal length (cm)', y='petal length (cm)', hue='species', data=iris_df, ax=ax)
     ax.set_title("Sepal Length vs Petal Length")
     st.pyplot(fig)
 
+with col2:
+    # Scatter Plot for Petal Length vs Petal Width
+    fig, ax = plt.subplots()
+    sns.scatterplot(x='petal length (cm)', y='petal width (cm)', hue='species', data=iris_df, ax=ax)
+    ax.set_title("Petal Length vs Petal Width")
+    st.pyplot(fig)
 
+    # Scatter Plot for Sepal Width vs Petal Width
+    fig, ax = plt.subplots()
+    sns.scatterplot(x='sepal width (cm)', y='petal width (cm)', hue='species', data=iris_df, ax=ax)
+    ax.set_title("Sepal Width vs Petal Width")
+    st.pyplot(fig)
 
 
 # Input fields for user to enter data
+st.header("Predict the Species of the Iris Flower")
+st.write("Enter the values of the following features to predict the species of the Iris flower.")
+
 st.subheader("Input Features")
 sepal_length = st.slider("Sepal Length", float(iris_df['sepal length (cm)'].min()), float(iris_df['sepal length (cm)'].max()))  
 sepal_width = st.slider("Sepal Width", float(iris_df['sepal width (cm)'].min()), float(iris_df['sepal width (cm)'].max()))
