@@ -1,5 +1,6 @@
 # Iris Classification App with Streamlit
 
+import numpy as np
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -13,7 +14,22 @@ from sklearn.datasets import load_iris
 iris = load_iris()
 iris_df = pd.DataFrame(data=iris.data, columns=iris.feature_names)
 iris_df['target'] = iris.target
-iris_df['species'] = iris.target_names[iris.target]
+iris_df['species'] = iris_df['target'].map({0: 'setosa', 1: 'versicolor', 2: 'virginica'})
+
+# Function to calculate Euclidean distance
+def euclidean_distance(point1, point2):
+    return np.sqrt(np.sum((np.array(point1) - np.array(point2)) ** 2))
+
+# Function to predict species using Euclidean distance
+def predict_species(sepal_length, sepal_width, petal_length, petal_width):
+    # Calculate the Euclidean distance between the input features and each sample in the dataset
+    iris_df['distance'] = iris_df.apply(lambda row: euclidean_distance(
+        [sepal_length, sepal_width, petal_length, petal_width],
+        [row['sepal length (cm)'], row['sepal width (cm)'], row['petal length (cm)'], row['petal width (cm)']]
+    ), axis=1)
+    # Get the species of the sample with the minimum distance   
+    species = iris_df.loc[iris_df['distance'].idxmin()]['species']
+    return species
 
 # App Title
 st.title("Iris Classification App")
@@ -40,43 +56,45 @@ else:
 st.subheader("Summary Statistics")
 st.write(iris_df.describe())
 
-# Data Visualization
+# Data Visualization    
 st.subheader("Data Visualization")
+col1, col2, col3 = st.columns(3)
 
-# Pairplot
-st.write("Pairplot of the Iris Dataset")
-pairplot = sns.pairplot(iris_df, hue='species')
-st.pyplot(pairplot)
+# Scatter Plot for Sepal Length vs Sepal Width
+with col1:
+    fig, ax = plt.subplots()
+    sns.scatterplot(x='sepal length (cm)', y='sepal width (cm)', hue='species', data=iris_df, ax=ax)
+    ax.set_title("Sepal Length vs Sepal Width")
+    st.pyplot(fig)
 
-# Correlation Matrix
-st.write("Correlation Matrix")
-corr_matrix = iris_df.corr()
-st.write(corr_matrix)
+# Scatter Plot for Petal Length vs Petal Width
+with col2:
+    fig, ax = plt.subplots()
+    sns.scatterplot(x='petal length (cm)', y='petal width (cm)', hue='species', data=iris_df, ax=ax)
+    ax.set_title("Petal Length vs Petal Width")
+    st.pyplot(fig)
 
-# Heatmap of Correlation Matrix
-st.write("Heatmap of Correlation Matrix")
-plt.figure(figsize=(10, 8))
-sns.heatmap(corr_matrix, annot=True, cmap='coolwarm')
-st.pyplot(plt)
+# Scatter Plot for Sepal Length vs Petal Length
+with col3:
+    fig, ax = plt.subplots()
+    sns.scatterplot(x='sepal length (cm)', y='petal length (cm)', hue='species', data=iris_df, ax=ax)
+    ax.set_title("Sepal Length vs Petal Length")
+    st.pyplot(fig)
 
-# Machine Learning Model
-st.subheader("Machine Learning Model")
 
-# Split the data
-X = iris_df.drop(['target', 'species'], axis=1)
-y = iris_df['target']
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# Train a Random Forest Classifier
-model = RandomForestClassifier(n_estimators=100, random_state=42)
-model.fit(X_train, y_train)
 
-# Make predictions
-y_pred = model.predict(X_test)
+# Input fields for user to enter data
+st.subheader("Input Features")
+sepal_length = st.slider("Sepal Length", float(iris_df['sepal length (cm)'].min()), float(iris_df['sepal length (cm)'].max()))  
+sepal_width = st.slider("Sepal Width", float(iris_df['sepal width (cm)'].min()), float(iris_df['sepal width (cm)'].max()))
+petal_length = st.slider("Petal Length", float(iris_df['petal length (cm)'].min()), float(iris_df['petal length (cm)'].max()))
+petal_width = st.slider("Petal Width", float(iris_df['petal width (cm)'].min()), float(iris_df['petal width (cm)'].max()))
 
-# Model Evaluation
-st.write("Model Accuracy:", accuracy_score(y_test, y_pred))
-st.write("Classification Report:")
-st.text(classification_report(y_test, y_pred))
-st.write("Confusion Matrix:")
-st.write(confusion_matrix(y_test, y_pred))
+
+# Predict the species
+species = predict_species(sepal_length, sepal_width, petal_length, petal_width)
+
+# Display the prediction
+st.subheader("Prediction")
+st.write("The species of the Iris flower is:", species)
