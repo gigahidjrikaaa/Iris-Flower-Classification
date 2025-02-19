@@ -112,3 +112,9 @@ species = predict_species(sepal_length, sepal_width, petal_length, petal_width)
 # Display the prediction
 st.subheader("Prediction")
 st.write("The species of the Iris flower is:", species)
+if species == 'setosa':
+    st.image("setosa.jpg", width=200)
+elif species == 'versicolor':
+    st.image("versicolor.jpg", width=200)
+else:
+    st.image("virginica.jpg", width=200)
